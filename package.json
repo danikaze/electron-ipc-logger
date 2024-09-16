@@ -1,0 +1,61 @@
+{
+  "name": "electron-ipc-logger",
+  "version": "0.1.0",
+  "description": "Log and display all user-defined IPC traffic in an electron app.",
+  "scripts": {
+    "build": "npm run clear && npm run build:ui && npm run build:tsc",
+    "build:ui": "cross-env NODE_ENV=production webpack -c webpack/ui.config.ts",
+    "build:tsc": "tsc -p tsconfig.build.json",
+    "build:dev": "npm run clear && npm run build:dev:ui && npm run build:dev:tsc",
+    "build:dev:ui": "cross-env NODE_ENV=preview webpack -c webpack/ui.config.ts",
+    "build:dev:tsc": "tsc --sourceMap -p tsconfig.build.json",
+    "clear": "rimraf dist",
+    "dev": "webpack",
+    "format": "prettier --write '**/*.{ts,tsx,json,scss,html}'",
+    "prepare": "husky"
+  },
+  "author": "danikaze <danikaze@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danikaze/electron-ipc-logger.git"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": "./dist/lib/index.js",
+    "./preload": "./dist/lib/preload.js",
+    "./main": "./dist/lib/main.js",
+    "./window": "./dist/lib/window.js"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.5",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@types/webpack": "^5.28.5",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^12.0.2",
+    "cross-env": "^7.0.3",
+    "css-loader": "^7.1.2",
+    "electron": "^32.0.2",
+    "eslint": "^9.10.0",
+    "eslint-plugin-react": "^7.35.2",
+    "eslint-plugin-unicorn": "^55.0.0",
+    "husky": "^9.1.6",
+    "prettier": "^3.3.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "rimraf": "^6.0.1",
+    "sass": "^1.78.0",
+    "sass-loader": "^16.0.1",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2",
+    "typescript-plugin-css-modules": "^5.1.0",
+    "webpack": "^5.94.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^6.0.1"
+  }
+}
