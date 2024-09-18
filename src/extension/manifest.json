@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "IPC Logger",
+  "version": "From package.json",
+  "description": "Log and display all user-defined IPC traffic in an electron app.",
+  "devtools_page": "index.html",
+  "permissions": ["scripting", "activeTab", "tabs"],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  }
+}

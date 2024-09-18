@@ -33,7 +33,7 @@ export async function installMainIpcLogger(
   };
   if (disable) return;
 
-  // await installExtension(options.extensionPath);
+  await installExtension(options.extensionPath);
 
   const originalBinded = {
     handle: ipcMain.handle.bind(ipcMain),
