@@ -7,6 +7,6 @@
     "outDir": "dist",
     "skipLibCheck": true
   },
-  "include": ["src/lib/**/*", "src/ui/preload.ts"],
+  "include": ["src/index.ts", "src/lib/**/*", "src/ui/preload.ts"],
   "exclude": []
 }

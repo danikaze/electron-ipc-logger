@@ -24,10 +24,7 @@
     "dist"
   ],
   "exports": {
-    ".": "./dist/lib/index.js",
-    "./preload": "./dist/lib/preload.js",
-    "./main": "./dist/lib/main.js",
-    "./window": "./dist/lib/window.js"
+    ".": "./dist/index.js"
   },
   "devDependencies": {
     "@types/node": "^22.5.5",
