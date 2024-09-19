@@ -133,6 +133,22 @@ export async function installIpcLogger(
 }
 
 /**
+ * Uninstall the IpcLogger hijacking and destroy the UI window.
+ *
+ * Usually not needed, as it's installed or not depending if the application is
+ * on debug mode or not... but provided nevertheless.
+ */
+export function uninstallIpcLogger(): void {
+  if (!isInstalled) {
+    throw new Error('IpcLogger is already uninstalled.');
+  }
+
+  isInstalled = false;
+  restoreIpcRenderer();
+  restoreWindows();
+}
+
+/**
  *
  * @param options
  * @param logEvent
@@ -259,6 +275,28 @@ function hijackWindow(
   };
   hijackedWebContents.push({ webContents, send: webContents.send });
   webContents.send = hijackedSend;
+}
+
+/**
+ *
+ */
+function restoreIpcRenderer(): void {
+  ipcMain.handle = originalMethods.handle;
+  ipcMain.handleOnce = originalMethods.handleOnce;
+  ipcMain.on = originalMethods.on;
+  ipcMain.once = originalMethods.once;
+  ipcMain.removeListener = originalMethods.removeListener;
+}
+
+/**
+ *
+ */
+function restoreWindows(): void {
+  for (let i = hijackedWebContents.length - 1; i >= 0; i--) {
+    const { webContents, send } = hijackedWebContents[i];
+    webContents.send = send;
+    hijackedWebContents.pop();
+  }
 }
 
 /**

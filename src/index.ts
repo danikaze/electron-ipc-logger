@@ -1,5 +1,5 @@
 export { IpcLoggerOptions, IpcLogData, isSystemChannel } from './shared';
-export { installIpcLogger } from './lib/main';
+export { installIpcLogger, uninstallIpcLogger } from './lib/main';
 export {
   openIpcLoggerWindow,
   closeIpcLoggerWindow,

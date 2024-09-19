@@ -90,6 +90,20 @@ function installRendererIpcLogger(): void {
   control.api.ipcRenderer.on(IPC_CHANNEL, listener);
 }
 
+function uninstallRendererIpcLogger(): void {
+  if (!control) return;
+
+  const { listener } = control;
+
+  if (!process.contextIsolated) {
+    delete window[API_NAMESPACE];
+  }
+
+  control.api.ipcRenderer.off(IPC_CHANNEL, listener);
+
+  control = undefined;
+}
+
 function isNewLogMsg(msg: IpcLoggerMsg): msg is IpcLoggerMsgNewLog {
   return (msg as IpcLoggerMsgNewLog).log !== undefined;
 }
