@@ -46,28 +46,47 @@ export const IpcTable: FC<Props> = ({ className, ...props }) => {
     <table className={clsx(styles.root, className)}>
       <thead className={className}>
         <tr>
-          <th onClick={sortByN} className={clsx(styles.colN)}>
+          <th
+            title="Incremental unique identifier"
+            onClick={sortByN}
+            className={clsx(styles.colN)}
+          >
             <div>N{sortBy === 'n' && sortArrow}</div>
           </th>
-          <th onClick={sortByTime} className={clsx(styles.colT)}>
+          <th
+            title="Time when the IPC message happened"
+            onClick={sortByTime}
+            className={clsx(styles.colT)}
+          >
             <div>
               Time
               {sortBy === 't' && sortArrow}
             </div>
           </th>
-          <th onClick={sortByMethod} className={clsx(styles.colMethod)}>
+          <th
+            title="Method that handled the IPC message on the main process"
+            onClick={sortByMethod}
+            className={clsx(styles.colMethod)}
+          >
             <div>
               Method
               {sortBy === 'method' && sortArrow}
             </div>
           </th>
-          <th onClick={sortByChannel} className={clsx(styles.colChannel)}>
+          <th
+            title="Channel used to transmite the IPC message"
+            onClick={sortByChannel}
+            className={clsx(styles.colChannel)}
+          >
             <div>
               Channel
               {sortBy === 'channel' && sortArrow}
             </div>
           </th>
-          <th className={styles.colArgs}>
+          <th
+            title="Data included in the IPC message parameters"
+            className={styles.colArgs}
+          >
             <div>Data</div>
           </th>
         </tr>
