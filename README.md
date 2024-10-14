@@ -26,18 +26,19 @@ app.whenReady().then(async () => {
 
 Complete list of options accepted by `installIpcLogger`:
 
-| Option              | Type                                        | Default     | Notes                                                                                                                                                                                                                                              |
-| ------------------- | ------------------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `closeIfLastWindow` | `boolean`                                   | `true`      | When another window is closed, if the IPC Logger is opened and it's the only remaining window, it will be automatically closed as well. This is usually the wanted behavior, but can be set to `false` to check data before the application exits. |
-| `openUiOnStart`     | `boolean`                                   | `true`      | When `true` the UI window will show as soon as it's ready. If set to `false`, it can be opened at the convenient time by calling `openIpcLoggerWindow`                                                                                             |
-| `parent`            | `BrowserWindow`                             | `undefined` | When provided, the IPC Logger UI Window will be closed when the parent is closed even if other windows are still open. It also will make the IPC Logger UI Window to be displayed on top of the `parent` at every moment.                          |
-| `disable`           | `boolean`                                   | `false`     | Allows to quickly enable or disable logging without overriding other options.                                                                                                                                                                      |
-| `mainToRenderer`    | `boolean`                                   | `true`      | Log messages sent from the main process to the renderer process.                                                                                                                                                                                   |
-| `rendererToMain`    | `boolean`                                   | `true`      | Log messages sent from the renderer process to the main process.                                                                                                                                                                                   |
-| `consoleOutput`     | `boolean`                                   | `false`     | Output the intercepted messages to the console (from the main process).                                                                                                                                                                            |
-| `logSystemMessages` | `boolean`                                   | `false`     | `true` to include system messages in the log, `false` to exclude them. (Messages prefixed with `ELECTRON` or `CHROME`)                                                                                                                             |
-| `filter`            | `(data: IpcLogData) => boolean`             | `undefined` | Allows specifying what IPC messages should be logged or not. Note that unless `logSystemMessages` is set to `true`, the `filter` won't receive data from IPC channels considered as system messages.                                               |
-| `onIpcMessage`      | `(channel: string, ...data: any[]) => void` | `undefined` | Callback to handle the intercepted messages with custom code (i.e. log it to a file, etc.)                                                                                                                                                         |
+| Option              | Type                                        | Default               | Notes                                                                                                                                                                                                                                              |
+| ------------------- | ------------------------------------------- | --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `closeIfLastWindow` | `boolean`                                   | `true`                | When another window is closed, if the IPC Logger is opened and it's the only remaining window, it will be automatically closed as well. This is usually the wanted behavior, but can be set to `false` to check data before the application exits. |
+| `openUiOnStart`     | `boolean`                                   | `true`                | When `true` the UI window will show as soon as it's ready. If set to `false`, it can be opened at the convenient time by calling `openIpcLoggerWindow`                                                                                             |
+| `parent`            | `BrowserWindow`                             | `undefined`           | When provided, the IPC Logger UI Window will be closed when the parent is closed even if other windows are still open. It also will make the IPC Logger UI Window to be displayed on top of the `parent` at every moment.                          |
+| `disable`           | `boolean`                                   | `false`               | Allows to quickly enable or disable logging without overriding other options.                                                                                                                                                                      |
+| `mainToRenderer`    | `boolean`                                   | `true`                | Log messages sent from the main process to the renderer process.                                                                                                                                                                                   |
+| `rendererToMain`    | `boolean`                                   | `true`                | Log messages sent from the renderer process to the main process.                                                                                                                                                                                   |
+| `consoleOutput`     | `boolean`                                   | `false`               | Output the intercepted messages to the console (from the main process).                                                                                                                                                                            |
+| `logSystemMessages` | `boolean`                                   | `false`               | `true` to include system messages in the log, `false` to exclude them. (Messages prefixed with `ELECTRON` or `CHROME`)                                                                                                                             |
+| `shortcut`          | `string` \| `boolean`                       | `'CmdOrCtrl+Shift+D'` | [Accelerator](https://www.electronjs.org/docs/latest/api/accelerator) (key shortcut) to register globally to open the IPC Logger UI window. Can be set to `false` or empty string `''` to disable it (`true` will just keep the default shortcut)  |
+| `filter`            | `(data: IpcLogData) => boolean`             | `undefined`           | Allows specifying what IPC messages should be logged or not. Note that unless `logSystemMessages` is set to `true`, the `filter` won't receive data from IPC channels considered as system messages.                                               |
+| `onIpcMessage`      | `(channel: string, ...data: any[]) => void` | `undefined`           | Callback to handle the intercepted messages with custom code (i.e. log it to a file, etc.)                                                                                                                                                         |
 
 ## F.A.Q
 
@@ -107,6 +108,87 @@ app.whenReady().then(async () => {
 
 // To open the UI, you can call this function from an IPC listener or a menu in your app (note that IPC channels need to be handled manually):
 ipcMain.handle('YOUR_OPEN_UI_LOGGER_IPC_CHANNEL', () => openIpcLoggerWindow());
+```
+
+See ["I closed the IPC Logger UI window. How to open it again?"](#i-closed-the-ipc-logger-ui-window-how-to-open-it-again) for more details.
+
+### I closed the IPC Logger UI window. How to open it again?
+
+There are at least three ways to do it. From the easiest one:
+
+#### ① Accelerators
+
+The easiest one is to rely on [accelerators](https://www.electronjs.org/docs/latest/api/accelerator) (see the `shortcut` option when calling `installIpcLogger()`).
+
+```ts
+import { installIpcLogger } from 'electron-ipc-logger';
+
+app.whenReady().then(async () => {
+  await installIpcLogger({
+    // there's no need to add this option as it's the default one,
+    // but this shows how to change the default shortcut to a custom one
+    shortcut: 'CommandOrControl+Shift+L',
+  });
+});
+```
+
+By default the IPC Logger UI window can be opened anytime using `Control + Shift + D` (`Command + Shift + D` on Mac). The shortcut can be customized or disabled.
+
+#### ② Menu
+
+Set up a [Menu](https://www.electronjs.org/docs/latest/api/menu#class-menu) with an item to open the IPC Logger, that will call `openIpcLoggerWindow()` from the main process.
+
+```ts
+import { app, Menu } from 'electron';
+import { openIpcLoggerWindow } from 'electron-ipc-logger';
+
+function createDebugMenu(): void {
+  // other options might be desired in the template :)
+  const template = [
+    {
+      label: 'Debug',
+      submenu: [
+        {
+          label: 'Open IPC Logger',
+          click: openIpcLoggerWindow,
+        },
+      ],
+    },
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
+
+app.whenReady().then(async () => {
+  createDebugMenu();
+  // Note that if the windows are created with `autoHideMenuBar: true,` ALT
+  // needs to be pressed for the menu to be shown
+});
+```
+
+#### ③ IPC Messaging
+
+Set up a button, command or custom trigger on your application that sends an IPC message on a custom channel of your choice and then gets processed by the main process to call the said `openIpcLoggerWindow()` function.
+
+```ts
+// [on your main process]
+import { app } from 'electron';
+import { openIpcLoggerWindow } from 'electron-ipc-logger';
+
+ipcMain.handle('openIpcLogger', () => {
+  openIpcLoggerWindow();
+});
+```
+
+```ts
+// [on your BrowserWindow]
+
+// asumming you have `<button id="open-ipc-logger">Open IPC Logger</button>` on your HTML
+document.getElementById('open-ipc-logger').addEventListener('click', () => {
+  // note that ipcRenderer needs to be exposed or the method enabled on your preload script
+  window.api.ipcRenderer.invoke('openIpcLogger');
+});
 ```
 
 ### How to permantently filter IPC communication?

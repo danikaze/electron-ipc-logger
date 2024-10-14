@@ -1,6 +1,7 @@
 import {
   app,
   BrowserWindow,
+  globalShortcut,
   ipcMain,
   IpcMain,
   IpcMainEvent,
@@ -15,7 +16,7 @@ import type {
   IpcLoggerOptions,
 } from '../shared';
 import { DEFAULT_OPTIONS, IPC_CHANNEL, isSystemChannel } from '../shared';
-import { getUiWindow } from './window';
+import { getUiWindow, openIpcLoggerWindow } from './window';
 
 type LogEventFn = {
   (
@@ -114,6 +115,12 @@ export async function installIpcLogger(
   app.on('browser-window-created', (event, window) => {
     hijackWindow(opt, logEvent, window.webContents);
   });
+
+  if (opt.shortcut) {
+    const accelerator =
+      opt.shortcut === true ? DEFAULT_OPTIONS.shortcut : opt.shortcut;
+    globalShortcut.register(accelerator, openIpcLoggerWindow);
+  }
 
   if (opt.openUiOnStart !== false) {
     uiWindow.show();

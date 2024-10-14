@@ -53,9 +53,20 @@ export type IpcLoggerOptions = {
   /**
    * `true` to include system messages in the log, `false` to exclude them.
    * (Messages prefixed with `ELECTRON` or `CHROME`)
+   *
    * @default false;
    */
   logSystemMessages?: boolean;
+  /**
+   * Accelerator (key shortcut) to register globally to open the IPC Logger UI
+   * window.
+   * Can be set to `false` or empty string `''` to disable it (`true` will
+   * just keep the default shortcut)
+   *
+   * @default `Command+Shift+D` on Mac (`Control+Shift+D` on other systems).
+   * @see https://www.electronjs.org/docs/latest/api/accelerator
+   */
+  shortcut?: string | boolean;
   /**
    * IPC channel to apply the filter to.
    * This is a more advanced alternative to `logSystemMessages`.
@@ -104,7 +115,9 @@ export const API_NAMESPACE = '__ELECTRON_IPC_LOGGER__';
 export const IPC_CHANNEL = '__ELECTRON_IPC_LOGGER__';
 
 export const DEFAULT_OPTIONS: Required<
-  Omit<IpcLoggerOptions, 'parent' | 'filter' | 'onIpcMessage'>
+  Omit<IpcLoggerOptions, 'parent' | 'filter' | 'onIpcMessage' | 'shortcut'> & {
+    shortcut: Exclude<IpcLoggerOptions['shortcut'], boolean>;
+  }
 > = {
   openUiOnStart: true,
   closeIfLastWindow: true,
@@ -113,6 +126,7 @@ export const DEFAULT_OPTIONS: Required<
   rendererToMain: true,
   consoleOutput: false,
   logSystemMessages: false,
+  shortcut: 'CmdOrCtrl+Shift+D',
 };
 
 export function isSystemChannel(channel: string): boolean {
