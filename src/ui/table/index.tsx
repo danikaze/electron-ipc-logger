@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { FC, cloneElement } from 'react';
+import { FC } from 'react';
 
 import { IpcLogData } from '../../shared';
 import { SortableField } from '../types';
@@ -9,6 +9,8 @@ import { IpcRow } from './row';
 import styles from './table.module.scss';
 
 export type Props = {
+  /** Table container: needed to modify its scroll position */
+  containerRef: React.MutableRefObject<HTMLDivElement>;
   data: ReadonlyArray<IpcLogData>;
   selectedMsg: IpcLogData | undefined;
   sortBy: SortableField;
@@ -27,6 +29,7 @@ export type Props = {
 export const IpcTable: FC<Props> = ({ className, ...props }) => {
   const {
     rows,
+    activeRowRef,
     selectedMsg,
     relativeTimes,
     sortBy,
@@ -98,6 +101,7 @@ export const IpcTable: FC<Props> = ({ className, ...props }) => {
             odd={i % 2 !== 0}
             data={row}
             active={selectedMsg === row}
+            ref={selectedMsg === row ? activeRowRef : undefined}
             relativeTimes={relativeTimes}
             onClick={onRowClick}
           />

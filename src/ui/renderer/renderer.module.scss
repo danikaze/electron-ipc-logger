@@ -3,6 +3,7 @@ $draggableWidth: 4px;
 .root {
   display: grid;
   height: 100vh;
+  outline: none;
 
   --top-bar-height: 27px;
   --data-panel-width: 300px;

@@ -1,4 +1,11 @@
-import { DragEvent, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  DragEvent,
+  KeyboardEventHandler,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { throttle } from 'throttle-debounce';
 import { API_NAMESPACE, IpcLogData, IpcLoggerApi } from '../../shared';
 import { PanelPosition, SortableField } from '../types';
@@ -17,14 +24,17 @@ const api = window[API_NAMESPACE] as IpcLoggerApi;
 const PANEL_MIN_SIZE = 200;
 const PANEL_MAX_SIZE_MARGIN = 150;
 const RESIZE_THROTTLE = 250;
+const NO_MSG_SELECTED = -1;
 
 export function useRenderer() {
+  const tableContainerRef = useRef<HTMLDivElement>(null);
   const [logData, setLogData] = useState<IpcLogData[]>([]);
   const [panelPosition, setPanelPosition] = useState<PanelPosition>('right');
   const [panelWidth, setPanelWidth] = useState(300);
   const [panelHeight, setPanelHeight] = useState(200);
   const [isPanelOpen, setPanelOpen] = useState(true);
-  const [selectedMsgIndex, setSelectedMsgIndex] = useState<number>();
+  const [selectedMsgIndex, setSelectedMsgIndex] =
+    useState<number>(NO_MSG_SELECTED);
   const [displayRelativeTimes, setDisplayRelativeTimes] = useState(false);
   const [sortBy, setSortBy] = useState<
     [field: SortableField, reverse: boolean]
@@ -66,7 +76,7 @@ export function useRenderer() {
 
   const closePanel = useCallback(() => {
     setPanelOpen(false);
-    setSelectedMsgIndex(-1);
+    setSelectedMsgIndex(NO_MSG_SELECTED);
   }, []);
 
   const setSelectedIpcMsg = useCallback(
@@ -138,11 +148,40 @@ export function useRenderer() {
 
   const clearMessages = useCallback(() => {
     setLogData([]);
-    setSelectedMsgIndex(-1);
+    setSelectedMsgIndex(NO_MSG_SELECTED);
   }, []);
+
+  const handleKeyboardEvents: KeyboardEventHandler<HTMLDivElement> = (ev) => {
+    // clear the message log
+    if (ev.code === 'KeyL' && (api.isMac ? ev.metaKey : ev.ctrlKey)) {
+      ev.preventDefault();
+      clearMessages();
+      return;
+    }
+
+    if (selectedMsgIndex == NO_MSG_SELECTED) return;
+
+    // navigate through messages (only when the DataPanel is open)
+    if (ev.code === 'Escape') {
+      closePanel();
+    } else if (ev.code === 'ArrowUp') {
+      setSelectedMsgIndex((n) => Math.max(0, n - 1));
+    } else if (ev.code === 'ArrowDown') {
+      setSelectedMsgIndex((n) => Math.min(logData.length - 1, n + 1));
+    } else if (ev.code === 'PageUp') {
+      setSelectedMsgIndex((n) => Math.max(0, n - 10));
+    } else if (ev.code === 'PageDown') {
+      setSelectedMsgIndex((n) => Math.min(logData.length - 1, n + 10));
+    } else if (ev.code === 'Home') {
+      setSelectedMsgIndex(0);
+    } else if (ev.code === 'End') {
+      setSelectedMsgIndex(logData.length - 1);
+    }
+  };
 
   return {
     // basic data
+    tableContainerRef,
     startTime: api.startTime,
     logData,
     // calculated data
@@ -167,5 +206,6 @@ export function useRenderer() {
     setSortCriteria,
     updateFilter,
     clearMessages,
+    handleKeyboardEvents,
   };
 }

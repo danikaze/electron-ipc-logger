@@ -84,6 +84,7 @@ import { API_NAMESPACE, IpcLoggerApi, IpcLogData } from '../shared';
 
   const api: IpcLoggerApi = {
     startTime,
+    isMac: false,
     ipcRenderer: {} as IpcRenderer,
     onUpdate: (cb) => cb(logData),
   };

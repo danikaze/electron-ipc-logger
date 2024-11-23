@@ -1,12 +1,12 @@
-import { CSSProperties, FC } from 'react';
 import { clsx } from 'clsx';
+import { CSSProperties, FC } from 'react';
 
+import { DataPanel } from '../data-panel';
 import { IpcTable } from '../table';
+import { TopBar } from '../top-bar';
 import { useRenderer } from './hooks';
 
 import styles from './renderer.module.scss';
-import { TopBar } from '../top-bar';
-import { DataPanel } from '../data-panel';
 
 /**
  * Container view for the renderer.
@@ -14,6 +14,7 @@ import { DataPanel } from '../data-panel';
  */
 export const Renderer: FC = () => {
   const {
+    tableContainerRef,
     logData,
     panelPosition,
     panelWidth,
@@ -34,6 +35,7 @@ export const Renderer: FC = () => {
     setSortCriteria,
     updateFilter,
     clearMessages,
+    handleKeyboardEvents,
   } = useRenderer();
 
   const gridStyle = {
@@ -43,6 +45,8 @@ export const Renderer: FC = () => {
 
   return (
     <div
+      tabIndex={-1}
+      onKeyDown={handleKeyboardEvents}
       className={clsx(
         styles.root,
         styles[panelPosition],
@@ -58,8 +62,9 @@ export const Renderer: FC = () => {
           clearMessages={clearMessages}
         />
       </div>
-      <div className={styles.main}>
+      <div ref={tableContainerRef} className={styles.main}>
         <IpcTable
+          containerRef={tableContainerRef}
           data={logData}
           selectedMsg={selectedMsg}
           relativeTimes={displayRelativeTimes}

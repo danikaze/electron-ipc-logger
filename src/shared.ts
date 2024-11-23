@@ -103,6 +103,8 @@ export type IpcLoggerApi = Readonly<{
   startTime: number;
   /** electron ipcRenderer accessor */
   ipcRenderer: IpcRenderer;
+  /** When running on mac (to know what key mod is needed: `meta` or `ctrl`) */
+  isMac: boolean;
   /** Allows registering listeners called when new IPC data is caught */
   onUpdate: (cb: (data: ReadonlyArray<IpcLogData>) => void) => void;
 }>;

@@ -67,6 +67,7 @@ function installRendererIpcLogger(): void {
     startTime,
     onUpdate,
     ipcRenderer,
+    isMac: process.platform === 'darwin',
   };
 
   control = {

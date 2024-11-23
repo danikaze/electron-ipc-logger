@@ -4,11 +4,11 @@ import { FC, useCallback } from 'react';
 import { IpcLogData } from '../../shared';
 import { CloseButton } from '../close-button';
 import { Json } from '../json';
+import { Time } from '../time';
+import { TrafficArrow } from '../traffic-arrow';
 import { PanelPosition } from '../types';
 
 import styles from './data-panel.module.scss';
-import { Time } from '../time';
-import { TrafficArrow } from '../traffic-arrow';
 
 export type Props = {
   position: PanelPosition;

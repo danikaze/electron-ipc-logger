@@ -1,5 +1,5 @@
 import { clsx } from 'clsx';
-import { FC, MouseEvent, useCallback } from 'react';
+import { forwardRef, MouseEvent, useCallback } from 'react';
 import { IpcLogData } from '../../shared';
 import { Time } from '../time';
 import { TrafficArrow } from '../traffic-arrow';
@@ -14,42 +14,39 @@ export type Props = {
   onClick: (n: IpcLogData['n']) => void;
 };
 
-export const IpcRow: FC<Props> = ({
-  data,
-  odd,
-  relativeTimes,
-  active,
-  onClick,
-}) => {
-  const clickHandler = useCallback(
-    (ev: MouseEvent) => {
-      let elem = ev.target as HTMLElement;
-      while (elem.dataset.n === undefined && elem.parentElement) {
-        elem = elem.parentElement;
-      }
-      if (elem.dataset) {
-        onClick(Number(elem.dataset.n));
-      }
-    },
-    [onClick]
-  );
+export const IpcRow = forwardRef<HTMLTableRowElement, Props>(
+  ({ data, odd, relativeTimes, active, onClick }, ref) => {
+    const clickHandler = useCallback(
+      (ev: MouseEvent) => {
+        let elem = ev.target as HTMLElement;
+        while (elem.dataset.n === undefined && elem.parentElement) {
+          elem = elem.parentElement;
+        }
+        if (elem.dataset) {
+          onClick(Number(elem.dataset.n));
+        }
+      },
+      [onClick]
+    );
 
-  return (
-    <tr
-      data-n={data.n}
-      onClick={clickHandler}
-      className={clsx(odd && styles.odd, active && styles.active)}
-    >
-      <td className={styles.colN}>{data.n}</td>
-      <td className={styles.colT}>
-        <Time t={data.t} relative={relativeTimes} />
-      </td>
-      <td className={styles.colMethod}>
-        <TrafficArrow msg={data} />
-        {data.method}
-      </td>
-      <td className={styles.colChannel}>{data.channel}</td>
-      <td className={styles.colArgs}>{JSON.stringify(data.args)}</td>
-    </tr>
-  );
-};
+    return (
+      <tr
+        ref={ref}
+        data-n={data.n}
+        onClick={clickHandler}
+        className={clsx(odd && styles.odd, active && styles.active)}
+      >
+        <td className={styles.colN}>{data.n}</td>
+        <td className={styles.colT}>
+          <Time t={data.t} relative={relativeTimes} />
+        </td>
+        <td className={styles.colMethod}>
+          <TrafficArrow msg={data} />
+          {data.method}
+        </td>
+        <td className={styles.colChannel}>{data.channel}</td>
+        <td className={styles.colArgs}>{JSON.stringify(data.args)}</td>
+      </tr>
+    );
+  }
+);

@@ -1,9 +1,10 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Props } from '.';
 import { IpcLogData } from '../../shared';
 import { SortableField } from '../types';
 
 export function useIpcTable({
+  containerRef,
   data,
   selectedMsg,
   sortBy,
@@ -14,6 +15,7 @@ export function useIpcTable({
   onRowClick,
   setSortBy,
 }: Omit<Props, 'className'>) {
+  const activeRowRef = useRef<HTMLTableRowElement>(null);
   const rows = useMemo(() => {
     const ciFilter = filter.toLocaleLowerCase();
     const rows = !filter
@@ -49,8 +51,37 @@ export function useIpcTable({
     [sortBy, sortReverse]
   );
 
+  useEffect(() => {
+    /*
+     * This should be called when a new row is selected (click / keyboard)
+     * It checks if the active row is outside the screen (which can happen
+     * on keyboard shortcuts) and move the scroll to show the row, as it would
+     * have happened with native scrolls
+     */
+    const row = activeRowRef.current;
+    const container = containerRef.current;
+    if (!row || !container) return;
+    const containerBounds = container.getBoundingClientRect();
+    const rowBounds = row.getBoundingClientRect();
+    const headerBounds = container
+      .querySelector('thead')
+      .getBoundingClientRect();
+    const limitTop = containerBounds.y + headerBounds.height;
+    const limitBottom = containerBounds.height;
+
+    // row over the view
+    if (rowBounds.top < limitTop) {
+      container.scrollBy(0, rowBounds.top - limitTop);
+    }
+    // row below the view
+    if (rowBounds.bottom > limitBottom) {
+      container.scrollBy(0, rowBounds.bottom - limitBottom);
+    }
+  }, [activeRowRef.current, containerRef.current]);
+
   return {
     rows,
+    activeRowRef,
     selectedMsg,
     relativeTimes,
     sortBy,
