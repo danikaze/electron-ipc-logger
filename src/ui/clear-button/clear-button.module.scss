@@ -1,0 +1,15 @@
+.button {
+  width: 15px;
+  height: 15px;
+  padding: 4px;
+
+  svg {
+    stroke: #474747;
+    stroke-width: 1.5px;
+  }
+
+  &:hover {
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0.08);
+  }
+}

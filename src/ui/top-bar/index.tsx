@@ -1,23 +1,28 @@
 import { FC } from 'react';
 
-import styles from './top-bar.module.scss';
-import { Checkbox } from '../checkbox';
-import { Filter } from '../filter';
 import { BarSeparator } from '../bar-separator';
+import { Checkbox } from '../checkbox';
+import { ClearButton } from '../clear-button';
+import { Filter } from '../filter';
+
+import styles from './top-bar.module.scss';
 
 export type Props = {
   relativeTimes: boolean;
   onUseRelativeTimes: (relative?: boolean) => void;
   setFilter: (filter: string) => void;
+  clearMessages: () => void;
 };
 
 export const TopBar: FC<Props> = ({
   relativeTimes,
   onUseRelativeTimes,
   setFilter,
+  clearMessages,
 }) => {
   return (
     <div className={styles.root}>
+      <ClearButton onClick={clearMessages} />
       <Filter inversable onChange={setFilter} />
       <BarSeparator />
       <Checkbox

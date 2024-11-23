@@ -33,6 +33,7 @@ export const Renderer: FC = () => {
     setDisplayRelativeTimes,
     setSortCriteria,
     updateFilter,
+    clearMessages,
   } = useRenderer();
 
   const gridStyle = {
@@ -54,6 +55,7 @@ export const Renderer: FC = () => {
           onUseRelativeTimes={setDisplayRelativeTimes}
           relativeTimes={displayRelativeTimes}
           setFilter={updateFilter}
+          clearMessages={clearMessages}
         />
       </div>
       <div className={styles.main}>

@@ -136,6 +136,11 @@ export function useRenderer() {
     [panelPosition]
   );
 
+  const clearMessages = useCallback(() => {
+    setLogData([]);
+    setSelectedMsgIndex(-1);
+  }, []);
+
   return {
     // basic data
     startTime: api.startTime,
@@ -161,5 +166,6 @@ export function useRenderer() {
     setDisplayRelativeTimes,
     setSortCriteria,
     updateFilter,
+    clearMessages,
   };
 }
