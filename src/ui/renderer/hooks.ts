@@ -30,6 +30,7 @@ export function useRenderer() {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const lastRowRef = useRef<HTMLTableRowElement>(null);
   const autoScrollingRef = useRef(true);
+  const firstLogRowRef = useRef(0);
   const [logData, setLogData] = useState<IpcLogData[]>([]);
   const [panelPosition, setPanelPosition] = useState<PanelPosition>('right');
   const [panelWidth, setPanelWidth] = useState(300);
@@ -73,11 +74,33 @@ export function useRenderer() {
   }, [isPanelOpen, scrollBy, tableContainerRef.current]);
 
   /*
-   * Set the listener on IPC messages to add new incoming data from the main process
+   * Set the listener on IPC messages to add new incoming data from the main
+   * process
+   *
+   * As there are messages that might be just updating previous values (i.e.
+   * to update the result from an invoke method), the can't just be appended.
+   * Instead, they need to be checked one by one and properly combined.
+   * And if the updated value was already cleared, it needs to be thrown away.
    */
   useEffect(() => {
-    const listener = (data: ReadonlyArray<IpcLogData>): void => {
-      setLogData([...data]);
+    const listener = (allData: ReadonlyArray<IpcLogData>): void => {
+      setLogData((currentData) => {
+        const updatedData = [...currentData];
+
+        for (const data of allData) {
+          // ignore data already cleared
+          if (data.n < firstLogRowRef.current) continue;
+          const i = updatedData.findIndex((row) => row.n === data.n);
+          if (i !== -1) {
+            // existing data might have been updated, so replace it
+            updatedData[i] = data;
+          } else {
+            // new data is just added to the end
+            updatedData.push(data);
+          }
+        }
+        return updatedData;
+      });
     };
     api.onUpdate(listener);
   }, []);
@@ -196,7 +219,13 @@ export function useRenderer() {
   );
 
   const clearMessages = useCallback(() => {
-    setLogData([]);
+    setLogData((logData) => {
+      // update what is the first msg to accept (everything else can be ignored)
+      if (logData.length) {
+        firstLogRowRef.current = logData[logData.length - 1].n + 1;
+      }
+      return [];
+    });
     setSelectedMsgIndex(NO_MSG_SELECTED);
   }, []);
 
