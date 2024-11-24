@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import { FC, useCallback } from 'react';
+import { FC, ReactNode, useCallback } from 'react';
 
 import { IpcLogData } from '../../shared';
 import { CloseButton } from '../close-button';
@@ -74,13 +74,30 @@ export const DataPanel: FC<Props> = ({
         </li>
       </ul>
       <div className={styles.json}>
-        {data.args.map((arg, i) => (
-          <Json key={i} data={arg} name={`args[${i}]`} />
-        ))}
+        <div>
+          {data.args.map((arg, i) => (
+            <Json
+              key={i}
+              className={styles.arg}
+              data={arg}
+              name={`args[${i}]`}
+            />
+          ))}
+        </div>
+        {renderReturn(data.result)}
       </div>
     </div>
   );
 };
+
+function renderReturn(value: ReactNode): ReactNode {
+  if (value === undefined) return null;
+  return (
+    <div className={styles.return}>
+      <Json data={value} name={`return`} />
+    </div>
+  );
+}
 
 const PanelPositionRightIcon: FC = () => (
   <svg viewBox="0 0 16 16" fill="none">

@@ -1,10 +1,6 @@
+import { clsx } from 'clsx';
 import { FC } from 'react';
-import {
-  GetItemString,
-  JSONTree,
-  LabelRenderer,
-  ValueRenderer,
-} from 'react-json-tree';
+import { GetItemString, JSONTree, LabelRenderer } from 'react-json-tree';
 import { theme } from './theme';
 
 import styles from './json.module.scss';
@@ -12,11 +8,12 @@ import styles from './json.module.scss';
 export type Props = {
   name?: string;
   data: any;
+  className?: string;
 };
 
-export const Json: FC<Props> = ({ data, name }) => {
+export const Json: FC<Props> = ({ data, name, className }) => {
   return (
-    <div className={styles.root}>
+    <div className={clsx(styles.root, className)}>
       <JSONTree
         shouldExpandNodeInitially={(keyPath) => keyPath.length < 3}
         getItemString={getItemString}
