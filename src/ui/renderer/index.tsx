@@ -16,7 +16,7 @@ export const Renderer: FC = () => {
   const {
     tableContainerRef,
     lastRowRef,
-    logData,
+    rows,
     panelPosition,
     panelWidth,
     panelHeight,
@@ -25,8 +25,6 @@ export const Renderer: FC = () => {
     displayRelativeTimes,
     sortBy,
     sortReverse,
-    filter,
-    isFilterInverted,
     onDragStart,
     onDrag,
     onMainScroll,
@@ -72,13 +70,11 @@ export const Renderer: FC = () => {
         <IpcTable
           containerRef={tableContainerRef}
           lastRowRef={lastRowRef}
-          data={logData}
+          data={rows}
           selectedMsg={selectedMsg}
           relativeTimes={displayRelativeTimes}
           sortBy={sortBy}
           sortReverse={sortReverse}
-          filter={filter}
-          filterInverted={isFilterInverted}
           setSortBy={setSortCriteria}
           onRowClick={setSelectedIpcMsg}
         />

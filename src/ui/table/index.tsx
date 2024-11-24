@@ -17,8 +17,6 @@ export type Props = {
   selectedMsg: IpcLogData | undefined;
   sortBy: SortableField;
   sortReverse: boolean;
-  filter: string;
-  filterInverted: boolean;
   relativeTimes: boolean;
   className?: string;
   onRowClick: (n: IpcLogData['n']) => void;

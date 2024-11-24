@@ -9,6 +9,7 @@ import {
 import { throttle } from 'throttle-debounce';
 import { API_NAMESPACE, IpcLogData, IpcLoggerApi } from '../../shared';
 import { PanelPosition, SortableField } from '../types';
+import { filterAndSort } from './filter';
 
 type DragData = {
   clientX0: number;
@@ -32,6 +33,7 @@ export function useRenderer() {
   const autoScrollingRef = useRef(true);
   const firstLogRowRef = useRef(0);
   const [logData, setLogData] = useState<IpcLogData[]>([]);
+  const [filteredRows, setFilteredRows] = useState<IpcLogData[]>([]);
   const [panelPosition, setPanelPosition] = useState<PanelPosition>('right');
   const [panelWidth, setPanelWidth] = useState(300);
   const [panelHeight, setPanelHeight] = useState(200);
@@ -74,6 +76,21 @@ export function useRenderer() {
   }, [isPanelOpen, scrollBy, tableContainerRef.current]);
 
   /*
+   * Re-sort the data if any condition is changed
+   */
+  useEffect(
+    () =>
+      setFilteredRows((filteredRows) => {
+        const currentSelected = filteredRows[selectedMsgIndex];
+        const newFilteredRows = filterAndSort(logData, filter, sortBy);
+        const newSelectedIndex = newFilteredRows.indexOf(currentSelected);
+        setSelectedMsgIndex(newSelectedIndex);
+        return newFilteredRows;
+      }),
+    [logData, filter, sortBy]
+  );
+
+  /*
    * Set the listener on IPC messages to add new incoming data from the main
    * process
    *
@@ -99,6 +116,7 @@ export function useRenderer() {
             updatedData.push(data);
           }
         }
+
         return updatedData;
       });
     };
@@ -109,10 +127,10 @@ export function useRenderer() {
    * Auto-update the state of the DataPanel based on the selected row
    */
   useEffect(() => {
-    const isOpen = logData[selectedMsgIndex] !== undefined;
+    const isOpen = filteredRows[selectedMsgIndex] !== undefined;
     updateAutoScrollState();
     setPanelOpen(isOpen);
-  }, [selectedMsgIndex]);
+  }, [selectedMsgIndex, filteredRows]);
 
   useEffect(updateAutoScrollState, [updateAutoScrollState]);
 
@@ -128,11 +146,6 @@ export function useRenderer() {
     window.addEventListener('resize', listener);
     return () => window.removeEventListener('resize', listener);
   }, [isPanelOpen]);
-
-  /*
-   * Auto-scroll the table on new messages when the DataPanel is closed
-   */
-  useEffect(() => {}, []);
 
   useEffect(() => {
     // if autoscrolling is disabled, do nothing
@@ -153,15 +166,15 @@ export function useRenderer() {
 
   const setSelectedIpcMsg = useCallback(
     (n: IpcLogData['n']) => {
-      const index = logData.findIndex((msg) => msg.n === n);
+      const index = filteredRows.findIndex((msg) => msg.n === n);
       setSelectedMsgIndex(index);
     },
-    [logData]
+    [filteredRows]
   );
 
   const setSortCriteria = useCallback(
     (field: SortableField) => {
-      const reverse = sortBy[0] === field ? !sortBy[1] : false;
+      const reverse = sortBy[0] === field ? !sortBy[1] : sortBy[1];
       setSortBy([field, reverse]);
     },
     [sortBy]
@@ -243,7 +256,7 @@ export function useRenderer() {
       setSelectedMsgIndex(0);
       return;
     } else if (ev.code === 'End') {
-      setSelectedMsgIndex(logData.length - 1);
+      setSelectedMsgIndex(filteredRows.length - 1);
       return;
     }
 
@@ -255,11 +268,11 @@ export function useRenderer() {
     } else if (ev.code === 'ArrowUp') {
       setSelectedMsgIndex((n) => Math.max(0, n - 1));
     } else if (ev.code === 'ArrowDown') {
-      setSelectedMsgIndex((n) => Math.min(logData.length - 1, n + 1));
+      setSelectedMsgIndex((n) => Math.min(filteredRows.length - 1, n + 1));
     } else if (ev.code === 'PageUp') {
       setSelectedMsgIndex((n) => Math.max(0, n - 10));
     } else if (ev.code === 'PageDown') {
-      setSelectedMsgIndex((n) => Math.min(logData.length - 1, n + 10));
+      setSelectedMsgIndex((n) => Math.min(filteredRows.length - 1, n + 10));
     }
   };
 
@@ -268,19 +281,17 @@ export function useRenderer() {
     tableContainerRef,
     lastRowRef,
     startTime: api.startTime,
-    logData,
+    rows: filteredRows,
     // calculated data
     panelPosition,
     panelWidth,
     panelHeight,
     isPanelOpen,
     selectedMsgIndex,
-    selectedMsg: logData[selectedMsgIndex],
+    selectedMsg: filteredRows[selectedMsgIndex],
     displayRelativeTimes,
     sortBy: sortBy[0],
     sortReverse: sortBy[1],
-    filter: filter[0],
-    isFilterInverted: filter[1],
     // callbacks
     onDragStart,
     onDrag,
