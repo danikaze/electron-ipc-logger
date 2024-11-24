@@ -5,6 +5,7 @@ import { SortableField } from '../types';
 
 export function useIpcTable({
   containerRef,
+  lastRowRef,
   data,
   selectedMsg,
   sortBy,
@@ -58,7 +59,10 @@ export function useIpcTable({
      * on keyboard shortcuts) and move the scroll to show the row, as it would
      * have happened with native scrolls
      */
-    const row = activeRowRef.current;
+    const isLastSelected = selectedMsg === data[data.length - 1];
+    // only 1 ref is passed to the row and `lastRowRef` has precedence over
+    // `activeRowRef`, so this check is needed
+    const row = (isLastSelected ? lastRowRef : activeRowRef).current;
     const container = containerRef.current;
     if (!row || !container) return;
     const containerBounds = container.getBoundingClientRect();
@@ -81,6 +85,7 @@ export function useIpcTable({
 
   return {
     rows,
+    lastRowRef,
     activeRowRef,
     selectedMsg,
     relativeTimes,

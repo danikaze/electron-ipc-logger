@@ -11,6 +11,8 @@ import styles from './table.module.scss';
 export type Props = {
   /** Table container: needed to modify its scroll position */
   containerRef: React.MutableRefObject<HTMLDivElement>;
+  /** Needed to auto-scroll */
+  lastRowRef: React.MutableRefObject<HTMLTableRowElement>;
   data: ReadonlyArray<IpcLogData>;
   selectedMsg: IpcLogData | undefined;
   sortBy: SortableField;
@@ -29,6 +31,7 @@ export type Props = {
 export const IpcTable: FC<Props> = ({ className, ...props }) => {
   const {
     rows,
+    lastRowRef,
     activeRowRef,
     selectedMsg,
     relativeTimes,
@@ -101,7 +104,13 @@ export const IpcTable: FC<Props> = ({ className, ...props }) => {
             odd={i % 2 !== 0}
             data={row}
             active={selectedMsg === row}
-            ref={selectedMsg === row ? activeRowRef : undefined}
+            ref={
+              i === rows.length - 1
+                ? lastRowRef
+                : selectedMsg === row
+                  ? activeRowRef
+                  : undefined
+            }
             relativeTimes={relativeTimes}
             onClick={onRowClick}
           />

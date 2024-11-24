@@ -28,6 +28,8 @@ const NO_MSG_SELECTED = -1;
 
 export function useRenderer() {
   const tableContainerRef = useRef<HTMLDivElement>(null);
+  const lastRowRef = useRef<HTMLTableRowElement>(null);
+  const autoScrollingRef = useRef(true);
   const [logData, setLogData] = useState<IpcLogData[]>([]);
   const [panelPosition, setPanelPosition] = useState<PanelPosition>('right');
   const [panelWidth, setPanelWidth] = useState(300);
@@ -53,6 +55,26 @@ export function useRenderer() {
     height: panelHeight,
   });
 
+  const updateAutoScrollState = useCallback(() => {
+    const container = tableContainerRef.current;
+
+    // if the panel is open (looking the details of a message) or the newest
+    // messages needs to appear on top, there's no need to scroll
+    if (isPanelOpen || scrollBy[1] || !container) {
+      autoScrollingRef.current = false;
+      return;
+    }
+
+    // otherwise, the autoscroll enabled when the table is scrolled up to
+    // the bottom
+    autoScrollingRef.current =
+      container.scrollTop + container.getBoundingClientRect().height >=
+      container.children[0].clientHeight;
+  }, [isPanelOpen, scrollBy, tableContainerRef.current]);
+
+  /*
+   * Set the listener on IPC messages to add new incoming data from the main process
+   */
   useEffect(() => {
     const listener = (data: ReadonlyArray<IpcLogData>): void => {
       setLogData([...data]);
@@ -60,10 +82,20 @@ export function useRenderer() {
     api.onUpdate(listener);
   }, []);
 
+  /*
+   * Auto-update the state of the DataPanel based on the selected row
+   */
   useEffect(() => {
-    setPanelOpen(logData[selectedMsgIndex] !== undefined);
+    const isOpen = logData[selectedMsgIndex] !== undefined;
+    updateAutoScrollState();
+    setPanelOpen(isOpen);
   }, [selectedMsgIndex]);
 
+  useEffect(updateAutoScrollState, [updateAutoScrollState]);
+
+  /*
+   * Fix/update the panel size when it's open and the window gets resized
+   */
   useEffect(() => {
     const fn = () => {
       if (!isPanelOpen) return;
@@ -73,6 +105,23 @@ export function useRenderer() {
     window.addEventListener('resize', listener);
     return () => window.removeEventListener('resize', listener);
   }, [isPanelOpen]);
+
+  /*
+   * Auto-scroll the table on new messages when the DataPanel is closed
+   */
+  useEffect(() => {}, []);
+
+  useEffect(() => {
+    // if autoscrolling is disabled, do nothing
+    if (!autoScrollingRef.current) return;
+
+    const container = tableContainerRef.current;
+    if (!container) return;
+
+    // scroll the container to its bottom
+    const containerBounds = container.getBoundingClientRect();
+    container.scrollBy(0, containerBounds.height);
+  }, [lastRowRef.current]);
 
   const closePanel = useCallback(() => {
     setPanelOpen(false);
@@ -159,7 +208,7 @@ export function useRenderer() {
       return;
     }
 
-    if (selectedMsgIndex == NO_MSG_SELECTED) return;
+    if (!isPanelOpen) return;
 
     // navigate through messages (only when the DataPanel is open)
     if (ev.code === 'Escape') {
@@ -182,6 +231,7 @@ export function useRenderer() {
   return {
     // basic data
     tableContainerRef,
+    lastRowRef,
     startTime: api.startTime,
     logData,
     // calculated data
@@ -199,6 +249,7 @@ export function useRenderer() {
     // callbacks
     onDragStart,
     onDrag,
+    onMainScroll: updateAutoScrollState,
     closePanel,
     setPanelPosition,
     setSelectedIpcMsg,

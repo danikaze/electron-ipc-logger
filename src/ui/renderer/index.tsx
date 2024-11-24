@@ -15,6 +15,7 @@ import styles from './renderer.module.scss';
 export const Renderer: FC = () => {
   const {
     tableContainerRef,
+    lastRowRef,
     logData,
     panelPosition,
     panelWidth,
@@ -28,6 +29,7 @@ export const Renderer: FC = () => {
     isFilterInverted,
     onDragStart,
     onDrag,
+    onMainScroll,
     closePanel,
     setPanelPosition,
     setSelectedIpcMsg,
@@ -62,9 +64,14 @@ export const Renderer: FC = () => {
           clearMessages={clearMessages}
         />
       </div>
-      <div ref={tableContainerRef} className={styles.main}>
+      <div
+        ref={tableContainerRef}
+        className={styles.main}
+        onScroll={onMainScroll}
+      >
         <IpcTable
           containerRef={tableContainerRef}
+          lastRowRef={lastRowRef}
           data={logData}
           selectedMsg={selectedMsg}
           relativeTimes={displayRelativeTimes}
