@@ -208,6 +208,16 @@ export function useRenderer() {
       return;
     }
 
+    // There's no need to have a previously selected row to be able to navigate
+    // to the first or last one
+    if (ev.code === 'Home') {
+      setSelectedMsgIndex(0);
+      return;
+    } else if (ev.code === 'End') {
+      setSelectedMsgIndex(logData.length - 1);
+      return;
+    }
+
     if (!isPanelOpen) return;
 
     // navigate through messages (only when the DataPanel is open)
@@ -221,10 +231,6 @@ export function useRenderer() {
       setSelectedMsgIndex((n) => Math.max(0, n - 10));
     } else if (ev.code === 'PageDown') {
       setSelectedMsgIndex((n) => Math.min(logData.length - 1, n + 10));
-    } else if (ev.code === 'Home') {
-      setSelectedMsgIndex(0);
-    } else if (ev.code === 'End') {
-      setSelectedMsgIndex(logData.length - 1);
     }
   };
 
