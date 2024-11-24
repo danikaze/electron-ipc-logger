@@ -83,11 +83,11 @@ export function useRenderer() {
    * And if the updated value was already cleared, it needs to be thrown away.
    */
   useEffect(() => {
-    const listener = (allData: ReadonlyArray<IpcLogData>): void => {
+    const listener = (newData: ReadonlyArray<IpcLogData>): void => {
       setLogData((currentData) => {
         const updatedData = [...currentData];
 
-        for (const data of allData) {
+        for (const data of newData) {
           // ignore data already cleared
           if (data.n < firstLogRowRef.current) continue;
           const i = updatedData.findIndex((row) => row.n === data.n);
