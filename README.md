@@ -234,6 +234,6 @@ The UI window is initialized with the [preload](src/ui/preload.ts) script which 
 
 IPC messages are captured always in the main process and sent to the UI window using IPCs as well. The installed preload script will store them and make them available for the UI.
 
-To optimize sending messages with log updates to the UI Window, it keeps track of what was the last message sent, and only sends newer ones. However, internally every log is preserved on memory so method called with `.invoke` can be updated. Updated methods are always sent regardless if the original message (without the returned value) was already sent or not.
+For performance reasons, only new messages are sent from the main process to the UI Window. The UI Window keeps a list of the messages to show (limited by `IpcLoggerOptions.logSize`). Messages from the `.invoke` method are _logged twice_: First when calling the method, and then the second time when the result from the call is received, which updates the message from the first step (every message has a unique `id`).
 
 The UI window loads [an empty page](src/ui/index.html) that executes [index.tsx](src/ui/index.tsx) rendering the UI itself via React. This UI registers a listener to _react_ when new data is received from the main process, and from here is just displaying the data as any usual web-app.

@@ -68,6 +68,14 @@ export type IpcLoggerOptions = {
    */
   shortcut?: string | boolean;
   /**
+   * Number of maximum messages to preserve in the IPC Logger UI window, that
+   * acts as a FIFO list (having too many messages might have performance issues
+   * while rendering the UI)
+   *
+   * @default 1000
+   */
+  logSize?: number;
+  /**
    * IPC channel to apply the filter to.
    * This is a more advanced alternative to `logSystemMessages`.
    * Note that unless `logSystemMessages` is set to `true`, the `filter` won't
@@ -82,6 +90,14 @@ export type IpcLoggerOptions = {
    */
   onIpcMessage?: (channel: string, ...data: any[]) => void;
 };
+
+/**
+ * Options used by the UI Window.
+ * They are provided after invoking the getOptions method once the window loads
+ */
+export type IpcLoggerUiOptions = Readonly<
+  Required<Pick<IpcLoggerOptions, 'logSize'>>
+>;
 
 export type IpcLogData = {
   /** Timestamp of the event */
@@ -113,6 +129,13 @@ export type IpcLoggerMsg = IpcLoggerMsgNewLog | IpcLoggerMsgUpdateResult;
 export type IpcLoggerMsgNewLog = { log: IpcLogData };
 export type IpcLoggerMsgUpdateResult = { result: any; n: number };
 
+/** List of commands that the UI Window can invoke */
+export type IpcLoggerCommand = IpcLoggerCommandGetOptions;
+export type IpcLoggerCommandGetOptions = (
+  op: 'getOptions'
+) => IpcLoggerUiOptions;
+export type IpcLoggerCommandOp = Parameters<IpcLoggerCommand>[0];
+
 export const API_NAMESPACE = '__ELECTRON_IPC_LOGGER__';
 export const IPC_CHANNEL = '__ELECTRON_IPC_LOGGER__';
 
@@ -128,7 +151,12 @@ export const DEFAULT_OPTIONS: Required<
   rendererToMain: true,
   consoleOutput: false,
   logSystemMessages: false,
+  logSize: 1000,
   shortcut: 'CmdOrCtrl+Shift+D',
+};
+
+export const DEFAULT_UI_OPTIONS: IpcLoggerUiOptions = {
+  logSize: DEFAULT_OPTIONS.logSize,
 };
 
 export function isSystemChannel(channel: string): boolean {

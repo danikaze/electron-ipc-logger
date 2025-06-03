@@ -11,11 +11,18 @@ import {
 
 import type {
   IpcLogData,
+  IpcLoggerCommandOp,
   IpcLoggerMsgNewLog,
   IpcLoggerMsgUpdateResult,
   IpcLoggerOptions,
+  IpcLoggerUiOptions,
 } from '../shared';
-import { DEFAULT_OPTIONS, IPC_CHANNEL, isSystemChannel } from '../shared';
+import {
+  DEFAULT_OPTIONS,
+  DEFAULT_UI_OPTIONS,
+  IPC_CHANNEL,
+  isSystemChannel,
+} from '../shared';
 import { getUiWindow, openIpcLoggerWindow } from './window';
 
 type LogEventFn = {
@@ -101,6 +108,14 @@ export async function installIpcLogger(
   }
   isInstalled = true;
 
+  // The first thing the UI window should do is ask for the options to use
+  ipcMain.handle(IPC_CHANNEL, (event, op: IpcLoggerCommandOp) => {
+    if (op === 'getOptions') {
+      return getUiOptions(options);
+    }
+    throw new Error(`Unknown op "${op}"`);
+  });
+
   const uiWindow = await getUiWindow(opt);
   const logEvent = getLogger(opt, uiWindow.webContents);
 
@@ -131,8 +146,10 @@ export async function installIpcLogger(
 
 /**
  *
- * @param options
- * @param logEvent
+ * @param options Options used to call `installIpcLogger`, populated with
+ * default values
+ * @param logEvent Reference to the function created with `getLogger` in
+ * `installIpcLogger`
  */
 function hijackIpcMain(options: IpcLoggerOptions, logEvent: LogEventFn): void {
   const { rendererToMain, mainToRenderer } = options;
@@ -267,7 +284,11 @@ function hijackWindow(
 function getLogger(
   options: Pick<
     IpcLoggerOptions,
-    'consoleOutput' | 'logSystemMessages' | 'onIpcMessage' | 'filter'
+    | 'consoleOutput'
+    | 'logSystemMessages'
+    | 'onIpcMessage'
+    | 'filter'
+    | 'logSize'
   >,
   uiWebContents: WebContents
 ): LogEventFn {
@@ -293,8 +314,8 @@ function getLogger(
 
     if (filter && !filter(data)) return;
 
-    // custom callback inside main
-    onIpcMessage && onIpcMessage(data.channel, ...data.args);
+    // custom callback inside main when provided
+    onIpcMessage?.(data.channel, ...data.args);
 
     // console log
     if (consoleOutput) {
@@ -319,4 +340,15 @@ function getLogger(
  */
 function logInConsole(data: IpcLogData): void {
   console.log(`[IPC](${data.method}) -> ${data.channel}`, ...data.args);
+}
+
+/**
+ * @param options Options provided from the application
+ * @returns Inferred options to use in the UI
+ */
+function getUiOptions(options: IpcLoggerOptions): IpcLoggerUiOptions {
+  return {
+    ...DEFAULT_UI_OPTIONS,
+    logSize: options.logSize,
+  };
 }

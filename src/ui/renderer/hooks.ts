@@ -7,7 +7,8 @@ import {
   useState,
 } from 'react';
 import { throttle } from 'throttle-debounce';
-import { API_NAMESPACE, IpcLogData, IpcLoggerApi } from '../../shared';
+import { Props } from '.';
+import { IpcLogData } from '../../shared';
 import { PanelPosition, SortableField } from '../types';
 import { filterAndSort } from './filter';
 
@@ -21,13 +22,12 @@ type DragData = {
   target?: any;
 };
 
-const api = window[API_NAMESPACE] as IpcLoggerApi;
 const PANEL_MIN_SIZE = 200;
 const PANEL_MAX_SIZE_MARGIN = 150;
 const RESIZE_THROTTLE = 250;
 const NO_MSG_SELECTED = -1;
 
-export function useRenderer() {
+export function useRenderer({ api, options }: Props) {
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const lastRowRef = useRef<HTMLTableRowElement>(null);
   const autoScrollingRef = useRef(true);
@@ -102,7 +102,7 @@ export function useRenderer() {
   useEffect(() => {
     const listener = (newData: ReadonlyArray<IpcLogData>): void => {
       setLogData((currentData) => {
-        const updatedData = [...currentData];
+        let updatedData = [...currentData];
 
         for (const data of newData) {
           // ignore data already cleared
@@ -115,6 +115,12 @@ export function useRenderer() {
             // new data is just added to the end
             updatedData.push(data);
           }
+        }
+
+        if (options.logSize > 0 && updatedData.length > options.logSize) {
+          // TODO: Instead of just keeping the last `logSize` messages, provide
+          // pagination (virtual nodes)
+          updatedData = updatedData.slice(updatedData.length - options.logSize);
         }
 
         return updatedData;

@@ -1,5 +1,11 @@
 import type { IpcRenderer } from 'electron';
-import { API_NAMESPACE, IpcLoggerApi, IpcLogData } from '../shared';
+import {
+  API_NAMESPACE,
+  IpcLoggerApi,
+  IpcLogData,
+  IpcLoggerUiOptions,
+  IPC_CHANNEL,
+} from '../shared';
 
 (() => {
   /*
@@ -89,10 +95,21 @@ import { API_NAMESPACE, IpcLoggerApi, IpcLogData } from '../shared';
   ];
   const logData = mockData.map((ev, i) => ({ n: i + 1, ...ev }));
 
+  const uiOptions: IpcLoggerUiOptions = {
+    logSize: 20,
+  };
+
   const api: IpcLoggerApi = {
     startTime,
     isMac: false,
-    ipcRenderer: {} as IpcRenderer,
+    ipcRenderer: {
+      invoke: (async (channel: string, op: string) => {
+        // on any other channel, doesn't resolve
+        if (channel !== IPC_CHANNEL) return new Promise(() => {});
+        if (op === 'getOptions') return uiOptions;
+        throw new Error(`Unknown op "${op}"`);
+      }) as IpcRenderer['invoke'],
+    } as IpcRenderer,
     onUpdate: (cb) => cb(logData),
   };
   (window as any)[API_NAMESPACE] = api;

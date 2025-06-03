@@ -1,6 +1,7 @@
 import { clsx } from 'clsx';
 import { CSSProperties, FC } from 'react';
 
+import { IpcLoggerApi, IpcLoggerUiOptions } from '../../shared';
 import { DataPanel } from '../data-panel';
 import { IpcTable } from '../table';
 import { TopBar } from '../top-bar';
@@ -8,11 +9,16 @@ import { useRenderer } from './hooks';
 
 import styles from './renderer.module.scss';
 
+export type Props = {
+  api: IpcLoggerApi;
+  options: IpcLoggerUiOptions;
+};
+
 /**
  * Container view for the renderer.
  * The (small) logic to view messages and data is managed here
  */
-export const Renderer: FC = () => {
+export const Renderer: FC<Props> = (props) => {
   const {
     tableContainerRef,
     lastRowRef,
@@ -36,7 +42,7 @@ export const Renderer: FC = () => {
     updateFilter,
     clearMessages,
     handleKeyboardEvents,
-  } = useRenderer();
+  } = useRenderer(props);
 
   const gridStyle = {
     '--data-panel-width': `${panelWidth}px`,
