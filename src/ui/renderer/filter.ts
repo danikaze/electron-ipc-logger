@@ -1,4 +1,5 @@
 import { IpcLogData } from '../../shared';
+import { safeJsonStringify } from '../json/safe-json';
 import { SortableField } from '../types';
 
 export function filterAndSort(
@@ -12,8 +13,8 @@ export function filterAndSort(
     : data.filter((row) => {
         const res =
           row.channel.toLocaleLowerCase().includes(ciFilter) ||
-          row.args.some((arg) =>
-            JSON.stringify(arg).toLocaleLowerCase().includes(filter)
+          row.args?.filter(Boolean).some((arg) =>
+            safeJsonStringify(arg).toLocaleLowerCase().includes(filter)
           );
         return filterInverted ? !res : res;
       });

@@ -5,6 +5,7 @@ import { Time } from '../time';
 import { TrafficArrow } from '../traffic-arrow';
 
 import styles from './table.module.scss';
+import { safeJsonStringify } from '../json/safe-json';
 
 export type Props = {
   data: IpcLogData;
@@ -45,7 +46,7 @@ export const IpcRow = forwardRef<HTMLTableRowElement, Props>(
           {data.method}
         </td>
         <td className={styles.colChannel}>{data.channel}</td>
-        <td className={styles.colArgs}>{JSON.stringify(data.args)}</td>
+        <td className={styles.colArgs}>{safeJsonStringify(data.args)}</td>
       </tr>
     );
   }
