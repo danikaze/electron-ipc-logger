@@ -1,9 +1,10 @@
-import { contextBridge, ipcRenderer } from 'electron';
+import { electronAPI } from '@electron-toolkit/preload';
+import { contextBridge } from 'electron';
 import {
   API_NAMESPACE,
-  IpcLoggerApi,
-  IpcLogData,
   IPC_CHANNEL,
+  IpcLogData,
+  IpcLoggerApi,
   IpcLoggerMsg,
   IpcLoggerMsgNewLog,
   IpcLoggerMsgUpdateResult,
@@ -85,7 +86,7 @@ function installRendererIpcLogger(): void {
   const api: IpcLoggerApi = {
     startTime,
     onUpdate,
-    ipcRenderer,
+    ipcRenderer: electronAPI.ipcRenderer,
     isMac: process.platform === 'darwin',
   };
 

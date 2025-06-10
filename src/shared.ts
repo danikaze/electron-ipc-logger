@@ -1,5 +1,5 @@
+import type { ElectronAPI } from '@electron-toolkit/preload';
 import type { BrowserWindow } from 'electron';
-import type { IpcRenderer } from 'electron/renderer';
 
 export type IpcLoggerOptions = {
   /**
@@ -118,7 +118,7 @@ export type IpcLoggerApi = Readonly<{
   /** Start time, to calculate relative times */
   startTime: number;
   /** electron ipcRenderer accessor */
-  ipcRenderer: IpcRenderer;
+  ipcRenderer: ElectronAPI['ipcRenderer'];
   /** When running on mac (to know what key mod is needed: `meta` or `ctrl`) */
   isMac: boolean;
   /** Allows registering listeners called when new IPC data is caught */
