@@ -1,3 +1,4 @@
+import 'webpack-dev-server';
 import CopyPlugin from 'copy-webpack-plugin';
 import { merge } from 'webpack-merge';
 import { absolutePath, baseConfig } from './base.config';
@@ -10,6 +11,13 @@ export default merge(baseConfig, {
   output: {
     path: absolutePath('dist', 'ui'),
   },
+  devServer:
+    process.env.NODE_ENV === 'production'
+      ? undefined
+      : {
+          compress: true,
+          port: Number(process.env.PORT) || 9000,
+        },
   plugins: [
     new CopyPlugin({
       patterns: [

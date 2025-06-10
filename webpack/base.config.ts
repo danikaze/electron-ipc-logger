@@ -19,7 +19,6 @@ export function absolutePath(...relativePath: string[]): string {
  */
 export const baseConfig: Configuration = {
   mode: BUILD_MODE === 'production' ? 'production' : 'development',
-  watch: BUILD_MODE === 'development',
   devtool: BUILD_MODE !== 'production' ? 'eval-source-map' : undefined,
   module: {
     rules: [

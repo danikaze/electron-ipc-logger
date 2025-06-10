@@ -4,7 +4,7 @@
   "description": "Log and display all user-defined IPC traffic in an electron app.",
   "scripts": {
     "build": "npm run clear && npm run build:ui && npm run build:tsc",
-    "dev": "webpack -c webpack/ui.config.ts",
+    "dev": "webpack serve -c webpack/ui.config.ts",
     "build:ui": "cross-env NODE_ENV=production webpack -c webpack/ui.config.ts",
     "build:tsc": "tsc -p tsconfig.build.json",
     "build:dev": "npm run clear && npm run build:dev:ui && npm run build:dev:tsc",
@@ -53,6 +53,7 @@
     "typescript-plugin-css-modules": "^5.1.0",
     "webpack": "^5.94.0",
     "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.2.2",
     "webpack-merge": "^6.0.1"
   },
   "dependencies": {
