@@ -95,7 +95,7 @@ export function useRenderer({ api, options }: Props) {
    * process
    *
    * As there are messages that might be just updating previous values (i.e.
-   * to update the result from an invoke method), the can't just be appended.
+   * to update the result from an invoke method), they can't just be appended.
    * Instead, they need to be checked one by one and properly combined.
    * And if the updated value was already cleared, it needs to be thrown away.
    */
@@ -110,7 +110,10 @@ export function useRenderer({ api, options }: Props) {
           const i = updatedData.findIndex((row) => row.n === data.n);
           if (i !== -1) {
             // existing data might have been updated, so replace it
-            updatedData[i] = data;
+            updatedData[i] = {
+              ...updatedData[i],
+              ...data,
+            };
           } else {
             // new data is just added to the end
             updatedData.push(data);

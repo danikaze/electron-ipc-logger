@@ -16,7 +16,7 @@ import {
     return;
   }
 
-  const startTime = Date.now();
+  const startTime = Date.now() - 4_000_000;
   const mockData: Omit<IpcLogData, 'n'>[] = [
     { t: startTime + 10, channel: 'channel1', method: 'on', args: [] },
     { t: startTime + 12, channel: 'channel1', method: 'on', args: [] },
@@ -93,7 +93,7 @@ import {
     },
     { t: startTime + 4_000_000, channel: '> 1 h', method: 'on', args: [] },
   ];
-  const logData = mockData.map((ev, i) => ({ n: i + 1, ...ev }));
+  const preLogData = mockData.map((ev, i) => ({ n: i + 1, ...ev }));
 
   const uiOptions: IpcLoggerUiOptions = {
     logSize: 20,
@@ -110,7 +110,61 @@ import {
         throw new Error(`Unknown op "${op}"`);
       }) as IpcRenderer['invoke'],
     } as IpcRenderer,
-    onUpdate: (cb) => cb(logData),
+    onUpdate: (cb) => {
+      let lastN = Math.max(...preLogData.map((msg) => msg.n));
+      (window as any).update = (data: ReadonlyArray<IpcLogData>) => {
+        if (!data) {
+          const code = 'font-family:monospace;color:grey;';
+          const normal = 'font-family:revert;color:revert;';
+          console.warn(
+            [
+              'This methods simulates an incoming message via the IPC channel.',
+              '',
+              '    Usage:',
+              '      %cwindow.update(newMessages)%c',
+              '',
+              '    where %cnewMessages%c is a an array like %cIpcLogData[]%c:',
+              '      %cwindow.update([{',
+              '        t: Date.now(),',
+              '        n: 1234,',
+              `        method: 'send',`,
+              `        channel: 'CHANNEL_NAME',`,
+              '        args: [1, 2, 3]',
+              '      }])%c',
+            ].join('\n'),
+            code,
+            normal,
+            code,
+            normal,
+            code,
+            normal,
+            code,
+            normal
+          );
+          return;
+        }
+        // messages normalization for easier debugging
+        const msgs = Array.isArray(data) ? data : [data];
+        for (const msg of msgs) {
+          // accept default parameters for non-update messages
+          // (so result messages don't overwrite the time unless explicitly specified)
+          if (msg.result === undefined) {
+            // no need to specify `t` (by default `Date.now()`)
+            if (msg.t === undefined) {
+              msg.t = Date.now();
+            }
+            // no need to specify `n` (auto-increment)
+            if (msg.n === undefined) {
+              msg.n = ++lastN;
+            } else {
+              lastN = Math.max(lastN, msg.n);
+            }
+          }
+        }
+        cb(msgs);
+      };
+      cb(preLogData);
+    },
   };
   (window as any)[API_NAMESPACE] = api;
 })();
