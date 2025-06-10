@@ -83,7 +83,9 @@ export function useRenderer({ api, options }: Props) {
       setFilteredRows((filteredRows) => {
         const currentSelected = filteredRows[selectedMsgIndex];
         const newFilteredRows = filterAndSort(logData, filter, sortBy);
-        const newSelectedIndex = newFilteredRows.indexOf(currentSelected);
+        const newSelectedIndex = currentSelected
+          ? newFilteredRows.findIndex((msg) => msg.n === currentSelected.n)
+          : NO_MSG_SELECTED;
         setSelectedMsgIndex(newSelectedIndex);
         return newFilteredRows;
       }),
