@@ -76,6 +76,10 @@ export type IpcLoggerOptions = {
    */
   logSize?: number;
   /**
+   * When `true`, it will open the DevTools and enable the dev keyboard shortcuts
+   */
+  debug?: boolean;
+  /**
    * IPC channel to apply the filter to.
    * This is a more advanced alternative to `logSystemMessages`.
    * Note that unless `logSystemMessages` is set to `true`, the `filter` won't
@@ -152,6 +156,7 @@ export const DEFAULT_OPTIONS: Required<
   consoleOutput: false,
   logSystemMessages: false,
   logSize: 1000,
+  debug: false,
   shortcut: 'CmdOrCtrl+Shift+D',
 };
 

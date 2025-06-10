@@ -8,6 +8,7 @@ import {
   IpcMainInvokeEvent,
   WebContents,
 } from 'electron';
+import debug from 'electron-debug';
 
 import type {
   IpcLogData,
@@ -116,8 +117,18 @@ export async function installIpcLogger(
     throw new Error(`Unknown op "${op}"`);
   });
 
+  if (opt.debug) {
+    // needs to be called BEFORE the window is opened due to this:
+    // https://github.com/sindresorhus/electron-debug/issues/92
+    debug({ windowSelector: (win) => win.title === 'IPC Logger' });
+  }
+
   const uiWindow = await getUiWindow(opt);
   const logEvent = getLogger(opt, uiWindow.webContents);
+
+  if (opt.debug) {
+    uiWindow.webContents.openDevTools();
+  }
 
   hijackIpcMain(opt, logEvent);
 
