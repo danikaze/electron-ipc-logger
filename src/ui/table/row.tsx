@@ -1,11 +1,11 @@
 import { clsx } from 'clsx';
 import { forwardRef, MouseEvent, useCallback } from 'react';
 import { IpcLogData } from '../../shared';
+import { safeJsonStringify } from '../json/safe-json';
 import { Time } from '../time';
 import { TrafficArrow } from '../traffic-arrow';
 
 import styles from './table.module.scss';
-import { safeJsonStringify } from '../json/safe-json';
 
 export type Props = {
   data: IpcLogData;

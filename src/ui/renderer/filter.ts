@@ -13,9 +13,11 @@ export function filterAndSort(
     : data.filter((row) => {
         const res =
           row.channel.toLocaleLowerCase().includes(ciFilter) ||
-          row.args?.filter(Boolean).some((arg) =>
-            safeJsonStringify(arg).toLocaleLowerCase().includes(filter)
-          );
+          row.args
+            ?.filter(Boolean)
+            .some((arg) =>
+              safeJsonStringify(arg).toLocaleLowerCase().includes(filter)
+            );
         return filterInverted ? !res : res;
       });
 

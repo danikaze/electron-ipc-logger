@@ -2,7 +2,11 @@ export function safeJsonStringify(obj: any) {
   try {
     return JSON.stringify(obj);
   } catch (error) {
-    console.error(error, obj);
+    if (error?.name === 'TypeError' && error?.message?.includes('circular')) {
+      return 'Circular JSON';
+    }
+
+    console.warn(error, obj);
     return 'Error parsing JSON';
   }
 }

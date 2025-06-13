@@ -91,6 +91,22 @@ import {
       result: 123,
       args: ['x', 'y', 'z'],
     },
+    {
+      t: startTime + 3_000_000,
+      channel: 'cyclic data',
+      method: 'on',
+      args: (() => {
+        const obj = {
+          arr: [{ a: 1 }, 2, {}] as unknown[],
+          n: 123,
+          str: 'x',
+          o: undefined,
+        };
+        obj.o = obj;
+        obj.arr[2] = obj;
+        return [obj];
+      })(),
+    },
     { t: startTime + 4_000_000, channel: '> 1 h', method: 'on', args: [] },
   ];
   const preLogData = mockData.map((ev, i) => ({ n: i + 1, ...ev }));
