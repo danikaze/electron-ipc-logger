@@ -1,8 +1,9 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { API_NAMESPACE, IPC_CHANNEL, IpcLoggerApi } from '../shared';
+import { API_NAMESPACE, IpcLoggerApi } from '../shared';
 import { Renderer } from './renderer';
+import { UiOptionsProvider } from './ui-options';
 
 import './reset-v2.css';
 import './style.scss';
@@ -19,7 +20,9 @@ async function renderUi() {
   // Then, render the UI
   createRoot(document.getElementById('root') as HTMLElement).render(
     <StrictMode>
-      <Renderer api={api} options={options} />
+      <UiOptionsProvider value={options}>
+        <Renderer api={api} />
+      </UiOptionsProvider>
     </StrictMode>
   );
 }

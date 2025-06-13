@@ -7,9 +7,11 @@ import {
   useState,
 } from 'react';
 import { throttle } from 'throttle-debounce';
+
 import { Props } from '.';
 import { IpcLogData } from '../../shared';
 import { PanelPosition, SortableField } from '../types';
+import { useUiOptions } from '../ui-options';
 import { filterAndSort } from './filter';
 
 type DragData = {
@@ -27,7 +29,8 @@ const PANEL_MAX_SIZE_MARGIN = 150;
 const RESIZE_THROTTLE = 250;
 const NO_MSG_SELECTED = -1;
 
-export function useRenderer({ api, options }: Props) {
+export function useRenderer({ api }: Props) {
+  const options = useUiOptions();
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const lastRowRef = useRef<HTMLTableRowElement>(null);
   const autoScrollingRef = useRef(true);
