@@ -1,7 +1,5 @@
-import { ElectronAPI } from '@electron-toolkit/preload';
 import {
   API_NAMESPACE,
-  IPC_CHANNEL,
   IpcLogData,
   IpcLoggerApi,
   IpcLoggerUiOptions,
@@ -118,14 +116,7 @@ import {
   const api: IpcLoggerApi = {
     startTime,
     isMac: false,
-    ipcRenderer: {
-      invoke: (async (channel: string, op: string) => {
-        // on any other channel, doesn't resolve
-        if (channel !== IPC_CHANNEL) return new Promise(() => {});
-        if (op === 'getOptions') return uiOptions;
-        throw new Error(`Unknown op "${op}"`);
-      }) as ElectronAPI['ipcRenderer']['invoke'],
-    } as ElectronAPI['ipcRenderer'],
+    getOptions: () => Promise.resolve(uiOptions),
     onUpdate: (cb) => {
       let lastN = Math.max(...preLogData.map((msg) => msg.n));
       (window as any).update = (data: ReadonlyArray<IpcLogData>) => {

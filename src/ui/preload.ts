@@ -1,20 +1,19 @@
-import { electronAPI } from '@electron-toolkit/preload';
-import { contextBridge } from 'electron';
+import { contextBridge, ipcRenderer } from 'electron';
 import {
   API_NAMESPACE,
   IPC_CHANNEL,
   IpcLogData,
   IpcLoggerApi,
-  IpcLoggerMsg,
-  IpcLoggerMsgNewLog,
-  IpcLoggerMsgUpdateResult,
+  IpcLoggerEvents,
+  IpcLoggerMsgEventLog,
+  IpcLoggerEventUpdateResult,
 } from '../shared';
 
 // Used to calculate the relative time of an event
 const startTime = Date.now();
 
 type ControlData = {
-  listener: (event: Electron.IpcRendererEvent, data: IpcLoggerMsg) => void;
+  listener: (event: Electron.IpcRendererEvent, data: IpcLoggerEvents) => void;
   api: IpcLoggerApi;
 };
 
@@ -86,7 +85,7 @@ function installRendererIpcLogger(): void {
   const api: IpcLoggerApi = {
     startTime,
     onUpdate,
-    ipcRenderer: electronAPI.ipcRenderer,
+    getOptions: () => ipcRenderer.invoke(IPC_CHANNEL, 'getOptions'),
     isMac: process.platform === 'darwin',
   };
 
@@ -108,13 +107,15 @@ function installRendererIpcLogger(): void {
     window[API_NAMESPACE] = api;
   }
 
-  control.api.ipcRenderer.on(IPC_CHANNEL, listener);
+  ipcRenderer.on(IPC_CHANNEL, listener);
 }
 
-function isNewLogMsg(msg: IpcLoggerMsg): msg is IpcLoggerMsgNewLog {
-  return (msg as IpcLoggerMsgNewLog).log !== undefined;
+function isNewLogMsg(msg: IpcLoggerEvents): msg is IpcLoggerMsgEventLog {
+  return (msg as IpcLoggerMsgEventLog).log !== undefined;
 }
 
-function isUpdateResultMsg(msg: IpcLoggerMsg): msg is IpcLoggerMsgUpdateResult {
-  return (msg as IpcLoggerMsgUpdateResult).n !== undefined;
+function isUpdateResultMsg(
+  msg: IpcLoggerEvents
+): msg is IpcLoggerEventUpdateResult {
+  return (msg as IpcLoggerEventUpdateResult).n !== undefined;
 }

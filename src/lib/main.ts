@@ -13,8 +13,8 @@ import debug from 'electron-debug';
 import type {
   IpcLogData,
   IpcLoggerCommandOp,
-  IpcLoggerMsgNewLog,
-  IpcLoggerMsgUpdateResult,
+  IpcLoggerEventUpdateResult,
+  IpcLoggerMsgEventLog,
   IpcLoggerOptions,
   IpcLoggerUiOptions,
 } from '../shared';
@@ -334,13 +334,13 @@ function getLogger(
     }
 
     // send the data to the UI
-    const msg: IpcLoggerMsgNewLog = { log: data };
+    const msg: IpcLoggerMsgEventLog = { log: data };
     uiWebContents.send(IPC_CHANNEL, msg);
 
     // if it's called via handle*, provide a way to update the result
     if (data.method !== 'handle' && data.method !== 'handleOnce') return;
     return (result: any) => {
-      const msg: IpcLoggerMsgUpdateResult = { n: data.n, result };
+      const msg: IpcLoggerEventUpdateResult = { n: data.n, result };
       uiWebContents.send(IPC_CHANNEL, msg);
     };
   };

@@ -1,4 +1,3 @@
-import type { ElectronAPI } from '@electron-toolkit/preload';
 import type { BrowserWindow } from 'electron';
 
 export type IpcLoggerOptions = {
@@ -122,16 +121,17 @@ export type IpcLoggerApi = Readonly<{
   /** Start time, to calculate relative times */
   startTime: number;
   /** electron ipcRenderer accessor */
-  ipcRenderer: ElectronAPI['ipcRenderer'];
+  getOptions: () => Promise<IpcLoggerUiOptions>;
   /** When running on mac (to know what key mod is needed: `meta` or `ctrl`) */
   isMac: boolean;
   /** Allows registering listeners called when new IPC data is caught */
   onUpdate: (cb: (data: ReadonlyArray<IpcLogData>) => void) => void;
 }>;
 
-export type IpcLoggerMsg = IpcLoggerMsgNewLog | IpcLoggerMsgUpdateResult;
-export type IpcLoggerMsgNewLog = { log: IpcLogData };
-export type IpcLoggerMsgUpdateResult = { result: any; n: number };
+/** List of events that the UI Window can receive via IPC */
+export type IpcLoggerEvents = IpcLoggerMsgEventLog | IpcLoggerEventUpdateResult;
+export type IpcLoggerMsgEventLog = { log: IpcLogData };
+export type IpcLoggerEventUpdateResult = { result: any; n: number };
 
 /** List of commands that the UI Window can invoke */
 export type IpcLoggerCommand = IpcLoggerCommandGetOptions;
