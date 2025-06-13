@@ -30,6 +30,7 @@ export const Renderer: FC<Props> = (props) => {
     displayRelativeTimes,
     sortBy,
     sortReverse,
+    logSizeReached,
     onDragStart,
     onDrag,
     onMainScroll,
@@ -80,6 +81,7 @@ export const Renderer: FC<Props> = (props) => {
           relativeTimes={displayRelativeTimes}
           sortBy={sortBy}
           sortReverse={sortReverse}
+          logSizeReached={logSizeReached}
           setSortBy={setSortCriteria}
           onRowClick={setSelectedIpcMsg}
         />

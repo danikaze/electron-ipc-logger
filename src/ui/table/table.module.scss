@@ -39,7 +39,17 @@
       font-family: ui.$fontCode;
     }
 
-    tr:not(.active) {
+    tr.maxLog {
+      font-family: ui.$fontUi;
+      background-color: #fef6d5;
+
+      code {
+        font-family: ui.$fontCode;
+        font-weight: bold;
+      }
+    }
+
+    tr:not(.maxLog):not(.active) {
       background: #ffffff;
 
       &.odd {

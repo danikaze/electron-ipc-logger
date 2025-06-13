@@ -9,6 +9,7 @@ export function useIpcTable({
   sortBy,
   sortReverse,
   relativeTimes,
+  logSizeReached,
   onRowClick,
   setSortBy,
 }: Omit<Props, 'className'>) {
@@ -64,6 +65,7 @@ export function useIpcTable({
     relativeTimes,
     sortBy,
     sortReverse,
+    logSizeReached,
     onRowClick,
     sortByN,
     sortByTime,

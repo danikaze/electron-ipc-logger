@@ -35,6 +35,7 @@ export function useRenderer({ api }: Props) {
   const lastRowRef = useRef<HTMLTableRowElement>(null);
   const autoScrollingRef = useRef(true);
   const firstLogRowRef = useRef(0);
+  const logSizeReachedRef = useRef(false);
   const [logData, setLogData] = useState<IpcLogData[]>([]);
   const [filteredRows, setFilteredRows] = useState<IpcLogData[]>([]);
   const [panelPosition, setPanelPosition] = useState<PanelPosition>('right');
@@ -129,6 +130,10 @@ export function useRenderer({ api }: Props) {
           // TODO: Instead of just keeping the last `logSize` messages, provide
           // pagination (virtual nodes)
           updatedData = updatedData.slice(updatedData.length - options.logSize);
+          // technically, this flag could be removed if we didn't care about
+          // displaying the msg when the number of messages is the maximum but
+          // still not being trimmed (and just compare size with options.logSize)
+          logSizeReachedRef.current = true;
         }
 
         return updatedData;
@@ -307,6 +312,7 @@ export function useRenderer({ api }: Props) {
     displayRelativeTimes,
     sortBy: sortBy[0],
     sortReverse: sortBy[1],
+    logSizeReached: logSizeReachedRef.current,
     // callbacks
     onDragStart,
     onDrag,

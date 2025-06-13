@@ -110,7 +110,7 @@ import {
   const preLogData = mockData.map((ev, i) => ({ n: i + 1, ...ev }));
 
   const uiOptions: IpcLoggerUiOptions = {
-    logSize: 20,
+    logSize: 15,
   };
 
   const api: IpcLoggerApi = {

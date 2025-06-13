@@ -4,6 +4,7 @@ import { FC } from 'react';
 import { IpcLogData } from '../../shared';
 import { SortableField } from '../types';
 import { useIpcTable } from './hooks';
+import { MaxLogMsg } from './max-log-msg';
 import { IpcRow } from './row';
 
 import styles from './table.module.scss';
@@ -18,6 +19,11 @@ export type Props = {
   sortBy: SortableField;
   sortReverse: boolean;
   relativeTimes: boolean;
+  /**
+   * `true` when the number of messages received has reached the limit in the
+   * options and only the last ones are shown
+   */
+  logSizeReached: boolean;
   className?: string;
   onRowClick: (n: IpcLogData['n']) => void;
   setSortBy: (field: SortableField) => void;
@@ -35,6 +41,7 @@ export const IpcTable: FC<Props> = ({ className, ...props }) => {
     relativeTimes,
     sortBy,
     sortReverse,
+    logSizeReached,
     onRowClick,
     sortByN,
     sortByTime,
@@ -96,6 +103,7 @@ export const IpcTable: FC<Props> = ({ className, ...props }) => {
         </tr>
       </thead>
       <tbody>
+        {logSizeReached && !sortReverse && <MaxLogMsg />}
         {rows.map((row, i) => (
           <IpcRow
             key={row.n}
@@ -113,6 +121,7 @@ export const IpcTable: FC<Props> = ({ className, ...props }) => {
             onClick={onRowClick}
           />
         ))}
+        {logSizeReached && sortReverse && <MaxLogMsg />}
       </tbody>
     </table>
   );
