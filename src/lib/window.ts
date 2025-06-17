@@ -1,6 +1,6 @@
 import { app, BrowserWindow, Event } from 'electron';
-import { getAbsolutePath } from './utils/get-absolute-path';
-import { IpcLoggerOptions } from '../shared';
+import { getAbsolutePath } from './utils/get-absolute-path.js';
+import { IpcLoggerOptions } from '../shared.js';
 
 let win: BrowserWindow | undefined;
 let parentWin: BrowserWindow | undefined;
@@ -84,7 +84,7 @@ export function getUiWindow({
         show: false,
         autoHideMenuBar: true,
         webPreferences: {
-          preload: getAbsolutePath('dist', 'ui', 'preload.js'),
+          preload: getAbsolutePath('dist', 'preload', 'index.cjs'),
           sandbox: false,
         },
       });

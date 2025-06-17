@@ -10,7 +10,7 @@ import {
    * This file is only executed on development mode, providing mock data to test
    * the extension UI
    */
-  if (process.env.BUILD_MODE !== 'development') {
+  if (process.env.NODE_ENV !== 'development') {
     return;
   }
 

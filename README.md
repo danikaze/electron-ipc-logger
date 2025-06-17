@@ -239,3 +239,15 @@ IPC messages are captured always in the main process and sent to the UI window u
 For performance reasons, only new messages are sent from the main process to the UI Window. The UI Window keeps a list of the messages to show (limited by `IpcLoggerOptions.logSize`). Messages from the `.invoke` method are _logged twice_: First when calling the method, and then the second time when the result from the call is received, which updates the message from the first step (every message has a unique `id`).
 
 The UI window loads [an empty page](src/ui/index.html) that executes [index.tsx](src/ui/index.tsx) rendering the UI itself via React. This UI registers a listener to _react_ when new data is received from the main process, and from here is just displaying the data as any usual web-app.
+
+### Building process
+
+Since [1.2.0](https://github.com/danikaze/electron-ipc-logger/releases/tag/v1.2.0) this library uses [electron-debug](https://github.com/sindresorhus/electron-debug/) internally (to provide the `debug` option).
+
+This is a package that works fine when used directly by electron, but here it's provided as a dependency of this package, so the build process affects on the import process (as it's an ES Module and mixing CJS and ESM never goes well...ーthanks JavaScript ecosystemー).
+
+To avoid problems, each part of the component (main/renderer/ui) is built separately:
+
+- **main**: Just uses `tsc` as the output is to be used from the main process in Electron. It outputs ESM. Requires the code to import using explicit extensions in the import paths.
+- **preload**: Uses vite to bundle the code ran in the browser sandboxed environment. It outputs Common JS.
+- **ui**: Uses vite to bundle the code which runs in the browser as any frontend application.

@@ -1,9 +1,10 @@
 import { Input } from '@headlessui/react';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { clsx } from 'clsx';
+
+import { Checkbox } from '../checkbox';
 
 import styles from './filter.module.scss';
-import { clsx } from 'clsx';
-import { Checkbox } from '../checkbox';
 
 export type Props = {
   placeholder?: string;

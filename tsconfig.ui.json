@@ -1,11 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": {
-    "declaration": false,
-    "module": "CommonJS",
-    "moduleResolution": "Node",
-    "outDir": "dist",
-    "skipLibCheck": true
-  },
-  "include": ["src/ui/preload.ts"]
+  "include": ["global.d.ts", "src/ui/**/*"],
+  "exclude": ["src/lib/"]
 }

@@ -7,7 +7,7 @@ import {
   IpcLoggerEvents,
   IpcLoggerMsgEventLog,
   IpcLoggerEventUpdateResult,
-} from '../shared';
+} from '../shared.js';
 
 // Used to calculate the relative time of an event
 const startTime = Date.now();

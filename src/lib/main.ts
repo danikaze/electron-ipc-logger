@@ -8,7 +8,6 @@ import {
   IpcMainInvokeEvent,
   WebContents,
 } from 'electron';
-import debug from 'electron-debug';
 
 import type {
   IpcLogData,
@@ -17,14 +16,14 @@ import type {
   IpcLoggerMsgEventLog,
   IpcLoggerOptions,
   IpcLoggerUiOptions,
-} from '../shared';
+} from '../shared.js';
 import {
   DEFAULT_OPTIONS,
   DEFAULT_UI_OPTIONS,
   IPC_CHANNEL,
   isSystemChannel,
-} from '../shared';
-import { getUiWindow, openIpcLoggerWindow } from './window';
+} from '../shared.js';
+import { getUiWindow, openIpcLoggerWindow } from './window.js';
 
 type LogEventFn = {
   (
@@ -120,7 +119,14 @@ export async function installIpcLogger(
   if (opt.debug) {
     // needs to be called BEFORE the window is opened due to this:
     // https://github.com/sindresorhus/electron-debug/issues/92
-    debug({ windowSelector: (win) => win.title === 'IPC Logger' });
+    // also, there will be no need to compare with the title once fixed
+    try {
+      await import('electron-debug').then((debug) => {
+        debug.default({ windowSelector: (win) => win.title === 'IPC Logger' });
+      });
+    } catch (e) {
+      console.warn(e);
+    }
   }
 
   const uiWindow = await getUiWindow(opt);

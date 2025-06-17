@@ -1,5 +1,6 @@
 import { clsx } from 'clsx';
 import { forwardRef, MouseEvent, useCallback } from 'react';
+
 import { IpcLogData } from '../../shared';
 import { safeJsonStringify } from '../json/safe-json';
 import { Time } from '../time';
