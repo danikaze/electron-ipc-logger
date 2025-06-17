@@ -1,7 +1,6 @@
 import { defineConfig } from 'vite';
 import { getAbsolutePath } from './utils/get-absolute-path.js';
 import { getNiceScopedName } from './utils/get-nice-scoped-name.js';
-import { moduleToBundleScript } from './utils/module-to-bundled.script.js';
 
 export default defineConfig(({ command }) => {
   const mode =
@@ -22,7 +21,13 @@ export default defineConfig(({ command }) => {
         output: [
           {
             entryFileNames: '[name].js',
-            assetFileNames: 'assets/[name]-[hash][extname]',
+            chunkFileNames: '[name].js',
+            assetFileNames: '[name]-[hash][extname]',
+            manualChunks(id) {
+              if (id.includes('node_modules')) {
+                return 'vendors';
+              }
+            },
           },
         ],
         onwarn: (warning, warn) => {
@@ -54,12 +59,5 @@ export default defineConfig(({ command }) => {
         },
       },
     },
-    plugins:
-      command === 'build'
-        ? // when building ESM can't be used as the page is expected to be
-          // opened in the browser with file:// protocol
-          [moduleToBundleScript()]
-        : // on development is fine, as Vite provides it's own dev server
-          [],
   };
 });
